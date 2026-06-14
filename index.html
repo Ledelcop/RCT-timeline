@@ -108,6 +108,17 @@
   .phase .bar{ height:3px; border-radius:2px; flex:1; background:var(--rule-strong); }
   .phase .wk{ color:var(--ink-soft); font-weight:400; letter-spacing:.04em; }
 
+  /* phase details panel: goals / precautions / criterion */
+  .pdetails{ display:grid; grid-template-columns:1fr 1fr 1.15fr; gap:12px; padding:4px 18px 16px; }
+  .pcol{ background:#f7fafa; border:1px solid var(--rule); border-radius:10px; padding:10px 13px; }
+  .pcol .pch{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin:0 0 6px; }
+  .pcol ul{ margin:0; padding-left:16px; }
+  .pcol li{ font-size:12.5px; color:var(--ink); margin-bottom:3px; line-height:1.34; }
+  .pcol.crit{ border:none; color:#fff; }
+  .pcol.crit .pch{ color:#fff; opacity:.9; }
+  .pcol.crit .ctext{ font-size:12.5px; line-height:1.42; color:#fff; }
+  @media (max-width:620px){ .pdetails{ grid-template-columns:1fr; } }
+
   /* rows */
   .row{ display:flex; align-items:stretch; }
   .row:hover .lab{ color:var(--ink); }
@@ -199,7 +210,12 @@
 <script>
 const MAXW = 26;
 const phases = [
-  { name:"Phase I — Immediate Post-surgical", wk:"wk 0–8", color:"#1597a0", rows:[
+  { name:"Phase I — Immediate Post-surgical", wk:"wk 0–8", color:"#1597a0",
+    goals:["Protect integrity of the repair","Gradually increase passive ROM","Diminish pain & inflammation","Prevent muscular inhibition","Independence in modified ADLs"],
+    precs:["No active shoulder ROM","No lifting / reaching behind back","Sling at all times except exercise","No weight-bearing through the hands","No running/jogging; keep incisions clean & dry"],
+    critLabel:"Criterion → Phase II",
+    crit:"Passive flexion ≥125°; ER ≥60° (≥25° massive); IR ≥60° (≥30° massive); abduction ≥90° (≥60° massive); no passive pulley.",
+    rows:[
     ["Sling, pendulum, distal AROM, supine PROM, cryotherapy (Day 1)", 0,0,0],
     ["Progressive PROM to tolerance", 1,1,2],
     ["Distal resisted isometrics / isotonics (elbow–hand)", 1,1,2],
@@ -209,7 +225,12 @@ const phases = [
     ["Aquatherapy (if wounds healed)", 3,6,10],
     ["Bike / UE ergometer permitted", 6,8,10],
   ]},
-  { name:"Phase II — Protected Active Motion", wk:"wk 5–16", color:"#3f7d86", rows:[
+  { name:"Phase II — Protected Active Motion", wk:"wk 5–16", color:"#3f7d86",
+    goals:["Allow soft-tissue healing without overstress","Gradually restore full passive ROM","Decrease pain & inflammation"],
+    precs:["No lifting","No supported body weight on arms","No sudden jerking motions","No excessive behind-back motions","No bike / UE ergometer early"],
+    critLabel:"Criterion → Phase III",
+    crit:"Full AROM (all tear sizes).",
+    rows:[
     ["AAROM shoulder flexion (supine)", 5,6,8],
     ["Passive pulley", 5,7,8],
     ["Prone rowing to neutral", 5,7,8],
@@ -223,7 +244,12 @@ const phases = [
     ["Limited strengthening program", 7,9,12],
     ["Full-can, scapular plane, no load", 10,12,10],
   ]},
-  { name:"Phase III — Early Strengthening", wk:"wk 10–22", color:"#b1742c", rows:[
+  { name:"Phase III — Early Strengthening", wk:"wk 10–22", color:"#b1742c",
+    goals:["Achieve / maintain full AROM","Dynamic GH + scapular stability","Restore strength, power & endurance","Optimize neuromuscular control"],
+    precs:["No lifting objects >5 lb","No sudden lifting or pushing","Exercise must not be painful"],
+    critLabel:"Criterion → Phase IV",
+    crit:"Tolerates low-level function; return of strength & dynamic shoulder stability; adequate for demanding work / sport.",
+    rows:[
     ["Scap-plane elevation 90° + prone series", 10,12,16],
     ["Dynamic / formal strengthening program", 10,12,16],
     ["Light isometrics 90/90 + PNF D2", 10,14,18],
@@ -232,7 +258,12 @@ const phases = [
     ["Low-level plyometrics (2-hand → overhead)", 12,16,20],
     ["Fundamental lifts (bench / shoulder press)", 14,16,20],
   ]},
-  { name:"Phase IV — Advanced Strengthening", wk:"wk 16–26", color:"#c7442e", rows:[
+  { name:"Phase IV — Advanced Strengthening", wk:"wk 16–26", color:"#c7442e",
+    goals:["Maintain full non-painful AROM","Sport / vocation-specific conditioning","Improve strength, power & endurance","Gradual return to all activities"],
+    precs:["Stay pain-free throughout","Light sport only with a satisfactory exam","Interval sport program only when appropriate"],
+    critLabel:"Endpoint",
+    crit:"Graded return to activity — full unrestricted return is ~1 year post-op.",
+    rows:[
     ["Advanced proprioceptive + light isotonic 90/90", 16,18,20],
     ["Light sports (golf chip, tennis ground stroke)", 16,18,18],
     ["Interval sport program (golf, doubles tennis)", 20,24,24],
@@ -261,6 +292,19 @@ phases.forEach(ph=>{
   head.className="phase";
   head.innerHTML=`<span style="color:${ph.color}">${ph.name}</span><span class="bar" style="background:${ph.color}33"></span><span class="wk">${ph.wk}</span>`;
   chart.appendChild(head);
+
+  // details panel: goals / precautions / criterion
+  if (ph.goals) {
+    const det=document.createElement("div");
+    det.className="pdetails";
+    const g = ph.goals.map(x=>`<li>${x}</li>`).join("");
+    const p = ph.precs.map(x=>`<li>${x}</li>`).join("");
+    det.innerHTML =
+      `<div class="pcol"><div class="pch" style="color:${ph.color}">Goals</div><ul>${g}</ul></div>`+
+      `<div class="pcol"><div class="pch" style="color:${ph.color}">Precautions / contraindications</div><ul>${p}</ul></div>`+
+      `<div class="pcol crit" style="background:${ph.color}"><div class="pch">${ph.critLabel}</div><div class="ctext">${ph.crit}</div></div>`;
+    chart.appendChild(det);
+  }
 
   ph.rows.forEach(r=>{
     const [label,s,m,ms]=r;
